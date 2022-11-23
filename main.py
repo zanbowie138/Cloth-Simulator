@@ -21,11 +21,11 @@ font = pygame.font.SysFont("Arial", 18)
 gameOn = True
 update_count = 0
 
-cloth = Cloth(300,300,50,30,5)
+cloth = Cloth(200,10,30,30,10)
 cloth.generate_points()
 
 while gameOn:
-    clock.tick(60)
+    clock.tick(120)
     update_count+=1
 
     #keys = pygame.key.get_pressed()
@@ -38,9 +38,10 @@ while gameOn:
     #Update fps
     screen.blit(update_fps(), (10,0))
     screen.blit(text_render(f"Frame #: {update_count}"), (10,30))
- 
+    
+    cloth.update(clock.get_time()/1000)
     for stick in cloth.sticks:
-        pygame.draw.line(screen, (120,120,255), (stick.p1.x, stick.p1.y), (stick.p2.x, stick.p2.y))
+        pygame.draw.line(screen, (120,120,255), (stick[0][0], stick[0][1]), (stick[1][0], stick[1][1]))
 
     # Update the display using flip
     pygame.display.flip()
