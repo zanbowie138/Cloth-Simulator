@@ -3,7 +3,6 @@ import math;
 import random
 
 from pygame.locals import *
-import utils
 from cloth import Cloth
 
 def update_fps():
@@ -21,16 +20,18 @@ font = pygame.font.SysFont("Arial", 18)
 gameOn = True
 update_count = 0
 
-cloth = Cloth(200,10,30,30,10)
+cloth = Cloth(200,10,20,20,20)
 cloth.generate_points()
 
 while gameOn:
     clock.tick(120)
     update_count+=1
 
-    #keys = pygame.key.get_pressed()
-    #if pygame.mouse.get_pressed():
-    #    pass
+    left, middle, right = pygame.mouse.get_pressed()
+    if left:
+        cloth.mouse_click(pygame.mouse.get_pos())
+    if not left:
+        cloth.mouse_reset()
 
     #Create background
     screen.fill((0,0,0))
@@ -40,6 +41,7 @@ while gameOn:
     screen.blit(text_render(f"Frame #: {update_count}"), (10,30))
     
     cloth.update(clock.get_time()/1000)
+
     for stick in cloth.sticks:
         pygame.draw.line(screen, (120,120,255), (stick[0][0], stick[0][1]), (stick[1][0], stick[1][1]))
 

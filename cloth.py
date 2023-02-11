@@ -1,8 +1,6 @@
 import numpy as np
 import math
 
-import utils
-
 class Cloth():
 
     def __init__(self, x, y, width, height, spacing):
@@ -33,14 +31,13 @@ class Cloth():
         self.sticks = np.array(self.sticks)
 
     def update(self, dt):
-        GRAVITY = np.array([0,100])
+        GRAVITY = np.array([0,500])
         substeps = 1
 
         for s in range(substeps):
             self.accelerate(GRAVITY)
             self.update_pos(dt/substeps)
             self.resolve_constraints()
-
         self.generate_sticks()
 
     def update_pos(self, dt):
@@ -53,6 +50,7 @@ class Cloth():
         self.pos_current = self.pos_current + velocity + (self.acceleration * dt * dt)
 
         self.pos_current[0] = self.pos_old[0]
+        self.pos_current[self.point[0]][self.point[1]] = self.pos_old[self.point[0]][self.point[1]]
 
         #Reset acceleration
         self.acceleration = np.array([0,0])
@@ -67,10 +65,8 @@ class Cloth():
                         output = self.resolve_constraint(self.pos_current[h][w], self.pos_current[h+1][w], True)
                     self.pos_current[h][w], self.pos_current[h+1][w] = output
                 if (w+1 < self.width):
-                    #print(self.pos_current[h][w+1])
                     output = self.resolve_constraint(self.pos_current[h][w], self.pos_current[h][w+1], False)
                     self.pos_current[h][w], self.pos_current[h][w+1] = output
-                    #print(str(output) + "\n")
 
     def resolve_constraint(self, p1, p2, pinned):
         distance = np.linalg.norm(p1-p2)
@@ -86,9 +82,8 @@ class Cloth():
             #both p1 and p2 will move in opposite directions 
             #in the same length
             change_vec = transform_axis * (change_distance)
-            #print(change_vec)
 
-            #Moves points away from each other
+            #Moves points towards each other
             if not pinned:
                 output[0] = p1 + change_vec/2
                 output[1] = p2 - change_vec/2
@@ -99,6 +94,23 @@ class Cloth():
 
     def accelerate(self, acc):
         self.acceleration = np.add(self.acceleration, acc)
+
+    def mouse_click(self, mouse_pos):
+        if self.point == [0,0]:
+            closest = np.linalg.norm(mouse_pos-self.pos_current[0][0])
+            self.point = [0,0]
+            for i, x in enumerate(self.pos_current):
+                for j, y in enumerate(self.pos_current[i]):
+                    distance = np.linalg.norm(mouse_pos-self.pos_current[i][j])
+                    if distance < closest:
+                        closest = distance
+                        self.point = [i,j]
+            self.pos_current[self.point[0]][self.point[1]] = mouse_pos
+        else:
+            self.pos_current[self.point[0]][self.point[1]] = mouse_pos
+    
+    def mouse_reset(self):
+        self.point = [0,0]
 
 
 
